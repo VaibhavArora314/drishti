@@ -4,6 +4,7 @@ import { Camera } from "expo-camera";
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => {
@@ -11,28 +12,40 @@ export default function CameraComponent() {
       const { status: camStatus } = await Camera.requestCameraPermissionsAsync();
       const { status: micStatus } = await Camera.requestMicrophonePermissionsAsync();
 
-      console.log(camStatus, micStatus);
-
       setHasPermission(camStatus === "granted" && micStatus === "granted");
     })();
   }, []);
 
-  // const startVideoStreaming = async () => {
-  //   if (cameraRef.current) {
-  //     try {
-  //       const videoStream = await cameraRef.current.recordAsync();
-  //       console.log("Video URI:", videoStream.uri);
-  //     } catch (error) {
-  //       console.error("Failed to start recording:", error);
-  //     }
-  //   }
-  // };
+  useEffect(() => {
+    if (hasPermission && isCameraReady) {
+      startVideoStreaming();
 
-  // const stopVideoStreaming = async () => {
-  //   if (cameraRef.current) {
-  //     cameraRef.current.stopRecording();
-  //   }
-  // };
+      return () => {
+        stopVideoStreaming();
+      };
+    }
+  }, [hasPermission, isCameraReady]);
+
+  const startVideoStreaming = async () => {
+    if (cameraRef.current) {
+      try {
+        const videoStream = await cameraRef.current.recordAsync();
+        console.log("Video URI:", videoStream.uri);
+      } catch (error) {
+        console.error("Failed to start recording:", error);
+      }
+    }
+  };
+
+  const stopVideoStreaming = async () => {
+    if (cameraRef.current) {
+      cameraRef.current.stopRecording();
+    }
+  };
+
+  const handleCameraReady = () => {
+    setIsCameraReady(true);
+  };
 
   if (hasPermission === null) {
     return <View />;
@@ -48,6 +61,7 @@ export default function CameraComponent() {
         style={{ flex: 1, width: "100%" }}
         type={Camera.Constants.Type.back}
         ref={cameraRef}
+        onCameraReady={handleCameraReady}
       />
 
       {/* <Button title="Start Streaming" onPress={startVideoStreaming} /> */}
