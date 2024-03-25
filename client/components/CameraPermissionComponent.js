@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, Button } from 'react-native';
-import { Camera } from 'expo-camera';
+import React, { useRef, useState, useEffect } from "react";
+import { View, Text, Button } from "react-native";
+import { Camera } from "expo-camera";
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -8,8 +8,8 @@ export default function CameraComponent() {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === "granted");
     })();
   }, []);
 
@@ -17,9 +17,9 @@ export default function CameraComponent() {
     if (cameraRef.current) {
       try {
         const videoStream = await cameraRef.current.recordAsync();
-        console.log('Video URI:', videoStream.uri);
+        console.log("Video URI:", videoStream.uri);
       } catch (error) {
-        console.error('Failed to start recording:', error);
+        console.error("Failed to start recording:", error);
       }
     }
   };
@@ -39,12 +39,13 @@ export default function CameraComponent() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, width: "100%" }}>
       <Camera
-        style={{ flex: 1 }}
+        style={{ flex: 1, width: "100%" }}
         type={Camera.Constants.Type.back}
         ref={cameraRef}
       />
+
       <Button title="Start Streaming" onPress={startVideoStreaming} />
       <Button title="Stop Streaming" onPress={stopVideoStreaming} />
     </View>
