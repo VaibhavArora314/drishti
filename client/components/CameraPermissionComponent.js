@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, Button, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
 import { Camera } from "expo-camera";
-import * as Speech from 'expo-speech';
+import * as Speech from 'expo-speech'; // Import speech from expo-speech
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -10,8 +10,10 @@ export default function CameraComponent() {
 
   useEffect(() => {
     (async () => {
-      const { status: camStatus } = await Camera.requestCameraPermissionsAsync();
-      const { status: micStatus } = await Camera.requestMicrophonePermissionsAsync();
+      const { status: camStatus } =
+        await Camera.requestCameraPermissionsAsync();
+      const { status: micStatus } =
+        await Camera.requestMicrophonePermissionsAsync();
 
       setHasPermission(camStatus === "granted" && micStatus === "granted");
     })();
@@ -30,7 +32,8 @@ export default function CameraComponent() {
   const startVideoStreaming = async () => {
     if (cameraRef.current) {
       try {
-        await cameraRef.current.recordAsync();
+        const videoStream = await cameraRef.current.recordAsync();
+        console.log("Video URI:", videoStream.uri);
       } catch (error) {
         console.error("Failed to start recording:", error);
       }
@@ -39,7 +42,7 @@ export default function CameraComponent() {
 
   const stopVideoStreaming = async () => {
     if (cameraRef.current) {
-      await cameraRef.current.stopRecording();
+      cameraRef.current.stopRecording();
     }
   };
 
@@ -47,53 +50,20 @@ export default function CameraComponent() {
     setIsCameraReady(true);
   };
 
-  const handlePress = async () => {
+  const handlePressAnywhere = async () => {
     console.log("Pressed");
 
     if (cameraRef.current) {
       try {
         const { uri } = await cameraRef.current.takePictureAsync();
         console.log("Snapshot URI:", uri);
-        
-        // Now you can send the image to a dummy API
-        // await sendImageToAPI(uri);
+        // Now you can do something with the snapshot URI, such as display it or process it further
       } catch (error) {
         console.error("Failed to take snapshot:", error);
       }
     }
 
     Speech.speak("Hello, I am speaking some dummy text.");
-  };
-
-  const sendImageToAPI = async (imageUri) => {
-    try {
-      const formData = new FormData();
-      formData.append("image", {
-        uri: imageUri,
-        type: 'image/jpeg', // adjust the image type based on your requirement
-        name: 'image.jpg', // adjust the file name based on your requirement
-      });
-
-      const response = await fetch("YOUR_DUMMY_API_ENDPOINT", {
-        method: "POST",
-        body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-          // Add any other required headers here
-        },
-      });
-
-      if (response.ok) {
-        console.log("Image sent successfully!");
-        // Handle success response from the API
-      } else {
-        console.error("Failed to send image:", response.statusText);
-        // Handle error response from the API
-      }
-    } catch (error) {
-      console.error("Failed to send image:", error.message);
-      // Handle network errors or other exceptions
-    }
   };
 
   if (hasPermission === null) {
@@ -105,14 +75,14 @@ export default function CameraComponent() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, width: "100%" }}>
       <Camera
-        style={{ flex: 1 }}
+        style={{ flex: 1, width: "100%" }}
         type={Camera.Constants.Type.back}
         ref={cameraRef}
         onCameraReady={handleCameraReady}
       >
-        <TouchableOpacity style={{ flex: 1 }} onPress={handlePress} />
+        <TouchableOpacity style={{ flex: 1 }} onPress={handlePressAnywhere} />
       </Camera>
     </View>
   );
