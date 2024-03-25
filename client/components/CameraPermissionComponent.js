@@ -1,35 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Platform, PermissionsAndroid } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import { View, Text, Button } from 'react-native';
 import { Camera } from 'expo-camera';
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
+  const cameraRef = useRef(null);
 
   useEffect(() => {
     (async () => {
-      if (Platform.OS === 'android') {
-        const cameraPermission = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA
-        );
-        setHasPermission(cameraPermission === PermissionsAndroid.RESULTS.GRANTED);
-      } else {
-        const { status } = await Camera.requestPermissionsAsync();
-        setHasPermission(status === 'granted');
-      }
+      const { status } = await Camera.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
     })();
   }, []);
+
+  const startVideoStreaming = async () => {
+    if (cameraRef.current) {
+      try {
+        const videoStream = await cameraRef.current.recordAsync();
+        console.log('Video URI:', videoStream.uri);
+      } catch (error) {
+        console.error('Failed to start recording:', error);
+      }
+    }
+  };
+
+  const stopVideoStreaming = async () => {
+    if (cameraRef.current) {
+      cameraRef.current.stopRecording();
+    }
+  };
 
   if (hasPermission === null) {
     return <View />;
   }
 
-  if (!hasPermission) {
+  if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-  console.log('i am here')
+
   return (
     <View style={{ flex: 1 }}>
-      <Camera style={{ flex: 1 }} type={Camera.Constants.Type.back} />
+      <Camera
+        style={{ flex: 1 }}
+        type={Camera.Constants.Type.back}
+        ref={cameraRef}
+      />
+      <Button title="Start Streaming" onPress={startVideoStreaming} />
+      <Button title="Stop Streaming" onPress={stopVideoStreaming} />
     </View>
   );
 }
