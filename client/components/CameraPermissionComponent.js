@@ -8,27 +8,31 @@ export default function CameraComponent() {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      const { status: camStatus } = await Camera.requestCameraPermissionsAsync();
+      const { status: micStatus } = await Camera.requestMicrophonePermissionsAsync();
+
+      console.log(camStatus, micStatus);
+
+      setHasPermission(camStatus === "granted" && micStatus === "granted");
     })();
   }, []);
 
-  const startVideoStreaming = async () => {
-    if (cameraRef.current) {
-      try {
-        const videoStream = await cameraRef.current.recordAsync();
-        console.log("Video URI:", videoStream.uri);
-      } catch (error) {
-        console.error("Failed to start recording:", error);
-      }
-    }
-  };
+  // const startVideoStreaming = async () => {
+  //   if (cameraRef.current) {
+  //     try {
+  //       const videoStream = await cameraRef.current.recordAsync();
+  //       console.log("Video URI:", videoStream.uri);
+  //     } catch (error) {
+  //       console.error("Failed to start recording:", error);
+  //     }
+  //   }
+  // };
 
-  const stopVideoStreaming = async () => {
-    if (cameraRef.current) {
-      cameraRef.current.stopRecording();
-    }
-  };
+  // const stopVideoStreaming = async () => {
+  //   if (cameraRef.current) {
+  //     cameraRef.current.stopRecording();
+  //   }
+  // };
 
   if (hasPermission === null) {
     return <View />;
@@ -46,8 +50,8 @@ export default function CameraComponent() {
         ref={cameraRef}
       />
 
-      <Button title="Start Streaming" onPress={startVideoStreaming} />
-      <Button title="Stop Streaming" onPress={stopVideoStreaming} />
+      {/* <Button title="Start Streaming" onPress={startVideoStreaming} /> */}
+      {/* <Button title="Stop Streaming" onPress={stopVideoStreaming} /> */}
     </View>
   );
 }
