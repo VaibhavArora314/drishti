@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system';
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [snapshotExecution,setSnapshotExecution] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => {
@@ -53,6 +54,10 @@ export default function CameraComponent() {
   };
 
   const handlePressAnywhere = async () => {
+    if (snapshotExecution)
+      return;
+
+    setSnapshotExecution(true);
     console.log("Pressed");
 
     if (cameraRef.current) {
@@ -80,7 +85,14 @@ export default function CameraComponent() {
     }
 
     // Speech.speak("Hello, I am speaking some dummy text.");
+    setSnapshotExecution(false);
   };
+
+  useEffect(()=> {
+    return ()=> {
+      setSnapshotExecution(false);
+    }
+  },[]);
 
   if (hasPermission === null) {
     return <View />;
