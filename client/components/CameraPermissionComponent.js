@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { View, Text, Button, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
 import { Camera } from "expo-camera";
 import * as Speech from 'expo-speech'; // Import speech from expo-speech
+import axios from "axios";
+import * as FileSystem from 'expo-file-system';
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -57,13 +59,29 @@ export default function CameraComponent() {
       try {
         const { uri } = await cameraRef.current.takePictureAsync();
         console.log("Snapshot URI:", uri);
-        // Now you can do something with the snapshot URI, such as display it or process it further
+
+        // Convert image URI to base64 string
+        const base64Image = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+
+        // Make API call with image data
+        try {
+          const {data} = await axios.post("http://192.168.246.3:3000/predict", {
+            image: base64Image // Pass image data as 'image' field in the request body
+          });
+          console.log(data);
+
+          if (data.predictions && data.predictions.length > 0) 
+            Speech.speak(data.predictions[0]);
+        } catch (error) {
+          console.log("Error while calling API:", error);
+        }
+
       } catch (error) {
         console.error("Failed to take snapshot:", error);
       }
     }
 
-    Speech.speak("Hello, I am speaking some dummy text.");
+    // Speech.speak("Hello, I am speaking some dummy text.");
   };
 
   if (hasPermission === null) {
