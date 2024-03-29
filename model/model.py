@@ -12,6 +12,7 @@ model.to(device)
 max_length = 30
 num_beams = 8
 gen_kwargs = {"max_length": max_length, "num_beams": num_beams}
+
 def predict_step(image_paths):
   images = []
   for image_path in image_paths:
@@ -26,9 +27,8 @@ def predict_step(image_paths):
 
   output_ids = model.generate(pixel_values, **gen_kwargs)
 
-  preds = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
-  preds = [pred.strip() for pred in preds]
-  return preds
+  predictions = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
+  predictions = [pred.strip() for pred in predictions]
+  return predictions
 
-
-# print(predict_step(['test2.jpg']))
+# print(predict_step(['sample-images/test1.jpg']))
