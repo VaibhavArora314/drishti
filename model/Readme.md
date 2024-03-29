@@ -1,4 +1,4 @@
-# Instructions to run
+# Instructions to run locally
 - Install python/pip
 - Install following dependencies
     ```
@@ -9,3 +9,4 @@
     ```
     python app.py
     ```
+- The device running app and the device running express server and model server should be in same local network/connected to same wifi.

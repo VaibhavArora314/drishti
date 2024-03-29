@@ -60,13 +60,11 @@ export default function CameraComponent() {
         const { uri } = await cameraRef.current.takePictureAsync();
         console.log("Snapshot URI:", uri);
 
-        // Convert image URI to base64 string
         const base64Image = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
 
-        // Make API call with image data
         try {
           const {data} = await axios.post("http://192.168.246.3:3000/predict", {
-            image: base64Image // Pass image data as 'image' field in the request body
+            image: base64Image
           });
           console.log(data);
 
