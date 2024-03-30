@@ -3,6 +3,7 @@ import { customErrorHandler } from "../../utils/errorHandler.js";
 import { hashPassword } from "../../utils/hashPassword.js";
 import jwt from "jsonwebtoken";
 import UserModel from "./user.schema.js";
+import { sendEmails } from "../../utils/SOS_Email_Sender.js";
 
 export const userRegisteration = async (req, res, next) => {
   const hashedPassword = await hashPassword(req.body.password);
@@ -30,12 +31,7 @@ export const userLogin = async (req, res, next) => {
         expiresIn: "1h",
       });
       console.log(token);
-      res.json({ success: true, msg: "User login successful", token, user: {
-        _id: resp.res._id,
-        name: resp.res.name,
-        email: resp.res.email,
-        SOSEmails: resp.res.SOSEmails,
-      } });
+      res.json({ success: true, msg: "User login successful", token });
     } else {
       if (resp.error.statusCode) {
         next(new customErrorHandler(resp.error.statusCode, resp.error.msg));
@@ -76,6 +72,28 @@ export const userSosEmailsUpdation = async (req, res, next) => {
     }
     user.SOSEmails = SOS_EMAILS;
     await user.save();
+
+    res.json({ success: true, SOS_EMAILS });
+  } catch (error) {
+    next(new customErrorHandler(500, "Internal Server Error"));
+  }
+};
+
+export const userSosEmergency = async (req, res, next) => {
+  try {
+    const SOS_EMAILS = req.user.SOSEmails;
+    const userName = req.user.name;
+    
+
+    const { longitude, latitude } = req.params;
+
+    await sendEmails(
+      SOS_EMAILS,
+      "SOS Emergency",
+      `This is an SOS emergency call from ${userName}`,
+      parseFloat(latitude),
+      parseFloat(longitude)
+    );
 
     res.json({ success: true, SOS_EMAILS });
   } catch (error) {
