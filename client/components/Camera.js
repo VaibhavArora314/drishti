@@ -5,12 +5,15 @@ import * as Speech from 'expo-speech'; // Import speech from expo-speech
 import axios from "axios";
 import * as FileSystem from 'expo-file-system';
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect hook
+import { useAuth } from "../context/userContext";
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [snapshotExecution, setSnapshotExecution] = useState(false);
+  const [lastTap, setLastTap] = useState(null);
   const cameraRef = useRef(null);
+  const user = useAuth();
 
   useEffect(() => {
     (async () => {
@@ -61,8 +64,41 @@ export default function CameraComponent() {
   const handleCameraReady = () => {
     setIsCameraReady(true);
   };
+  
+  // const getLocation = async () => {
+  //     let { status } = await Location.requestForegroundPermissionsAsync();
+  //     if (status !== 'granted') {
+  //       setErrorMsg('Permission to access location was denied');
+  //       return null;
+  //     }
+
+  //    return await Location.getCurrentPositionAsync({});
+  // }
 
   const handlePressAnywhere = async () => {
+    // const now = new Date().getTime();
+    // const DOUBLE_PRESS_DELAY = 300; // Adjust this delay as needed
+
+    // if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
+    //   // Double tap detected
+    //   console.log("Double tapped");
+
+    //   const location = await getLocation();
+    //   let latitude = null;
+    //   let longitude = null;
+    //   if (location) {
+    //     latitude = location.coords.latitude;
+    //     longitude = location.coords.longitude;
+    //   }
+
+    //   const response = await axios.post(`/api/user/sos-detected/${longitude}/${latitude}`)
+
+    //   setLastTap(null);
+    //   return;
+    // }
+
+    // setLastTap(now);
+
     if (snapshotExecution)
       return;
 
@@ -77,13 +113,14 @@ export default function CameraComponent() {
         const base64Image = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
 
         try {
-          const { data } = await axios.post("http://192.168.36.216:3000/predict", {
+          const { data } = await axios.post("/predict", {
             image: base64Image
           });
           console.log(data);
 
           if (data.predictions && data.predictions.length > 0)
-            Speech.speak(data.predictions[0]);
+            Speech.speak(data.predictions);
+            // Speech.speak(data.predictions[0]);
         } catch (error) {
           console.log("Error while calling API:", error);
         }

@@ -33,12 +33,12 @@ export const AuthProvider = ({ children }) => {
       value={{
         userDetails,
         setUserDetails: (data) => {
-          storeData(UserDataKey,data ? data : null);
+          if (data) storeData(UserDataKey,data);
           setUserDetails(data ? data : null);
         },
         userToken,
         setUserToken: (data) => {
-          storeData(TokenDataKey,data ? data : null);
+          if (data) storeData(TokenDataKey,data);
           setUserToken(data ? data : null);
         },
         isAuthenticated: () => {
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
         sosEmails,
         setSosEmails: (data) => {
           storeData(SosEmailsKey, data ? data : []);
-          setSosEmails(data ? data : null);
+          setSosEmails(data ? data : []);
         },
         logout: () => {
           storeData(UserDataKey,null);

@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from model import predict_step
+from model2 import predict_step
 import os
 import base64
 from tempfile import mkdtemp
@@ -26,7 +26,8 @@ def predict():
         with open(temp_file_path, 'wb') as f:
             f.write(image_data)
         
-        predictions = predict_step([temp_file_path])
+        # predictions = predict_step([temp_file_path])
+        predictions = predict_step(temp_file_path)
         
         os.remove(temp_file_path)
         os.rmdir(temp_dir)

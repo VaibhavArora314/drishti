@@ -9,10 +9,12 @@ import {
   TextInput,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useAuth } from "../context/userContext";
 
 const SOSInput = () => {
   const [emails, setEmails] = useState(["", "", "", ""]);
   const [editing, setEditing] = useState(false);
+  const user = useAuth();
 
   const handleEmailChange = (index, value) => {
     const newEmails = [...emails];
@@ -21,7 +23,7 @@ const SOSInput = () => {
   };
 
   const handleSubmit = () => {
-    // Handle submission of SOS emails
+    user.setSosEmails(emails);
   };
 
   const handleEdit = () => {

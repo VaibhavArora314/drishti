@@ -84,7 +84,7 @@ export function App() {
   return (
     <>
       <NavigationContainer>
-        {!user.isAuthenticated() ? <Tabs /> : <AuthenticatedBottomTabs />}
+        {user.userDetails && user.userDetails._id ? <Tabs /> : <AuthenticatedBottomTabs />}
       </NavigationContainer>
     </>
   );
