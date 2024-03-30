@@ -9,12 +9,35 @@ import {
   TextInput,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import axios from "axios"
+import { useAuth } from '../context/userContext';
 
 export default function Example() {
   const [form, setForm] = useState({
     email: '',
     password: '',
   });
+  const user = useAuth();
+
+  // Function to handle sign-in
+  const handleSignIn = async () => {
+    // Implement your sign-in logic here
+    console.log('Signing in with email:', form.email, 'and password:', form.password);
+
+    try {
+      const { data } = await axios.post("/api/user/signin", {
+        email: form.email,
+        password: form.password
+      });
+      console.log(data);
+
+      user.setUserDetails(data.user);
+      user.setUserToken(data.token);     
+    } catch (error) {
+      console.log("Error while calling API:", error);
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e8ecf4' }}>
       <View style={styles.container}>
@@ -66,30 +89,34 @@ export default function Example() {
             </View>
 
             <View style={styles.formAction}>
-              <TouchableOpacity
-                onPress={() => {
-                  // handle onPress
-                }}>
+              <TouchableOpacity onPress={handleSignIn}>
                 <View style={styles.btn}>
                   <Text style={styles.btnText}>Sign in</Text>
                 </View>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.formLink}>Forgot password?</Text>
+            {/* <TouchableOpacity
+              onPress={() => {
+                // Handle Forgot password
+                console.log('Forgot password?');
+              }}>
+              <Text style={styles.formLink}>Forgot password?</Text>
+            </TouchableOpacity> */}
           </View>
         </KeyboardAwareScrollView>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => {
-            // handle link
+            // Handle navigation to sign up
+            console.log('Navigate to sign up');
           }}
           style={{ marginTop: 'auto' }}>
           <Text style={styles.formFooter}>
             Don't have an account?{' '}
             <Text style={{ textDecorationLine: 'underline' }}>Sign up</Text>
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );

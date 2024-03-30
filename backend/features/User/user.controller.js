@@ -30,7 +30,12 @@ export const userLogin = async (req, res, next) => {
         expiresIn: "1h",
       });
       console.log(token);
-      res.json({ success: true, msg: "User login successful", token });
+      res.json({ success: true, msg: "User login successful", token, user: {
+        _id: resp.res._id,
+        name: resp.res.name,
+        email: resp.res.email,
+        SOSEmails: resp.res.SOSEmails,
+      } });
     } else {
       if (resp.error.statusCode) {
         next(new customErrorHandler(resp.error.statusCode, resp.error.msg));

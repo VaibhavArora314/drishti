@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { AsyncStorage } from "react-native"; // Import AsyncStorage
+import { getData, storeData } from "../helpers/store";
 
 const AuthContext = createContext();
 
@@ -8,52 +8,57 @@ function useAuth() {
   return value;
 }
 
+const UserDataKey = "user",
+  TokenDataKey = "token",
+  SosEmailsKey = "emails";
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
+  const [userToken, setUserToken] = useState(null);
   const [sosEmails, setSosEmails] = useState([]);
 
   useEffect(() => {
-    // Load data from AsyncStorage when component mounts
-    const loadUserData = async () => {
-      try {
-        const userData = await AsyncStorage.getItem("userData");
-        if (userData) {
-          const { user, isAuthenticated, sosEmails } = JSON.parse(userData);
-          setUser(user);
-          setIsAuthenticated(isAuthenticated);
-          setSosEmails(sosEmails);
-        }
-      } catch (error) {
-        console.error("Error loading user data from AsyncStorage:", error);
-      }
-    };
-    loadUserData();
-  }, []);
+    const userData = getData(UserDataKey);
+    setUserDetails(userData ? userData : null);
 
-  const saveUserData = async () => {
-    try {
-      const userData = JSON.stringify({ user, isAuthenticated, sosEmails });
-      await AsyncStorage.setItem("userData", userData);
-    } catch (error) {
-      console.error("Error saving user data to AsyncStorage:", error);
-    }
-  };
+    const token = getData(TokenDataKey);
+    setUserToken(token ? token : null);
 
-  useEffect(() => {
-    // Save data to AsyncStorage whenever user, isAuthenticated, or sosEmails change
-    saveUserData();
-  }, [user, isAuthenticated, sosEmails]);
+    const emailsList = getData(SosEmailsKey);
+    setSosEmails(emailsList);
+  },[]);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        setUser,
-        isAuthenticated,
-        setIsAuthenticated,
+        userDetails,
+        setUserDetails: (data) => {
+          storeData(UserDataKey,data ? data : null);
+          setUserDetails(data ? data : null);
+        },
+        userToken,
+        setUserToken: (data) => {
+          storeData(TokenDataKey,data ? data : null);
+          setUserToken(data ? data : null);
+        },
+        isAuthenticated: () => {
+          return (userDetails && userDetails._id) ? true : false;
+        },
         sosEmails,
-        setSosEmails,
+        setSosEmails: (data) => {
+          storeData(SosEmailsKey, data ? data : []);
+          setSosEmails(data ? data : null);
+        },
+        logout: () => {
+          storeData(UserDataKey,null);
+          setUserDetails(null);
+
+          storeData(TokenDataKey,null);
+          setUserToken(null);
+
+          storeData(SosEmailsKey,null);
+          setSosEmails([]);
+        }
       }}
     >
       {children}
@@ -61,4 +66,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export { AuthContext, useAuth };
+export { AuthContext, useAuth }; 

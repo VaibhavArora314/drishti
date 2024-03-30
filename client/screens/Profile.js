@@ -1,19 +1,22 @@
 import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { useAuth } from "../context/userContext";
 
-export default function ProfilePage({ email, name, onLogout }) {
+export default function ProfilePage() {
+  const {userDetails, logout} = useAuth();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>
       <View style={styles.profileInfo}>
         <Text style={styles.label}>Name:</Text>
-        <Text style={styles.info}>{name}</Text>
+        <Text style={styles.info}>{userDetails.name}</Text>
       </View>
       <View style={styles.profileInfo}>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.info}>{email}</Text>
+        <Text style={styles.info}>{userDetails.email}</Text>
       </View>
-      <TouchableOpacity onPress={onLogout}>
+      <TouchableOpacity onPress={logout}>
         <View style={styles.logoutBtn}>
           <Text style={styles.btnText}>Logout</Text>
         </View>

@@ -9,6 +9,7 @@ import {
   TextInput,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import axios from "axios";
 
 export default function SignUp() {
   const [form, setForm] = useState({
@@ -17,6 +18,36 @@ export default function SignUp() {
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSignUp = async () => {
+    // Implement your sign-in logic here
+    console.log(form);
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match!");
+      setSuccess("");
+      return;
+    }
+
+    try {
+      const { data } = await axios.post("/api/user/signup", {
+        name: form.fullName,
+        email: form.email,
+        password: form.password,
+      });
+      console.log(data);
+
+      // user.setUserToken(data.token);
+      // user.setIsAuthenticated(true);
+      setSuccess("User created successfully!");
+      setError("");
+    } catch (error) {
+      console.log("Error while calling API:", error);
+      setError("An unexpected error occurred!");
+      setSuccess("");
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#e8ecf4" }}>
@@ -31,6 +62,11 @@ export default function SignUp() {
             }}
           />
           <Text style={styles.title}>Create an Account</Text>
+        </View>
+
+        <View style={styles.form}>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {success ? <Text style={styles.success}>{success}</Text> : null}
         </View>
 
         <View style={styles.form}>
@@ -90,7 +126,7 @@ export default function SignUp() {
 
           <TouchableOpacity
             onPress={() => {
-              // handle signup
+              handleSignUp();
             }}
           >
             <View style={styles.btn}>
@@ -98,7 +134,7 @@ export default function SignUp() {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
               // navigate to login page
             }}
@@ -106,7 +142,7 @@ export default function SignUp() {
             <Text style={styles.formLink}>
               Already have an account? Sign in
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </KeyboardAwareScrollView>
     </SafeAreaView>
@@ -176,6 +212,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#075eec",
+    textAlign: "center",
+  },
+  error: {
+    color: "red",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  success: {
+    color: "green",
+    marginBottom: 10,
     textAlign: "center",
   },
 });
