@@ -4,11 +4,12 @@ import { Camera } from "expo-camera";
 import * as Speech from 'expo-speech'; // Import speech from expo-speech
 import axios from "axios";
 import * as FileSystem from 'expo-file-system';
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect hook
 
 export default function CameraComponent() {
   const [hasPermission, setHasPermission] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
-  const [snapshotExecution,setSnapshotExecution] = useState(false);
+  const [snapshotExecution, setSnapshotExecution] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => {
@@ -31,6 +32,14 @@ export default function CameraComponent() {
       };
     }
   }, [hasPermission, isCameraReady]);
+
+  useFocusEffect(() => {
+    // Called when the component gains focus
+    return () => {
+      // Clean-up function when the component loses focus
+      setSnapshotExecution(false);
+    };
+  });
 
   const startVideoStreaming = async () => {
     if (cameraRef.current) {
@@ -68,12 +77,12 @@ export default function CameraComponent() {
         const base64Image = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
 
         try {
-          const {data} = await axios.post("http://192.168.246.3:3000/predict", {
+          const { data } = await axios.post("http://192.168.36.216:3000/predict", {
             image: base64Image
           });
           console.log(data);
 
-          if (data.predictions && data.predictions.length > 0) 
+          if (data.predictions && data.predictions.length > 0)
             Speech.speak(data.predictions[0]);
         } catch (error) {
           console.log("Error while calling API:", error);
@@ -87,12 +96,6 @@ export default function CameraComponent() {
     // Speech.speak("Hello, I am speaking some dummy text.");
     setSnapshotExecution(false);
   };
-
-  useEffect(()=> {
-    return ()=> {
-      setSnapshotExecution(false);
-    }
-  },[]);
 
   if (hasPermission === null) {
     return <View />;
