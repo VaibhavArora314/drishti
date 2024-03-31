@@ -54,7 +54,11 @@ function AuthenticatedBottomTabs() {
         headerTintColor: "white",
       }}
     >
-      <BottomTab.Screen name="Camera" component={CameraComponent} />
+      <BottomTab.Screen name="Camera" component={CameraComponent} options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="camera" color={color} size={size} />
+          ),
+        }}/>
 
       <BottomTab.Screen
         name="Profile"
