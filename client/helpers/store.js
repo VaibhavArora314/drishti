@@ -3,6 +3,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Storing data
 const storeData = async (key, value) => {
   try {
+    if (value == null) {
+      removeData(key);
+      return;
+    }
     await AsyncStorage.setItem(key, value);
     console.log('Data stored successfully.');
   } catch (error) {

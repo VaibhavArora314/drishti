@@ -32,7 +32,8 @@ export default function Example() {
       console.log(data);
 
       user.setUserDetails(data.user);
-      user.setUserToken(data.token);     
+      user.setUserToken(data.token);
+      user.setIsAuthenticated(true);  
     } catch (error) {
       console.log("Error while calling API:", error);
     }

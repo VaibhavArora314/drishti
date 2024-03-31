@@ -3,6 +3,16 @@ import torch
 from PIL import Image
 import cv2
 
+model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+feature_extractor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
+
+device = torch.device("cpu")
+model.to(device)
+
+max_length = 30
+num_beams = 8
+gen_kwargs = {"max_length": max_length, "num_beams": num_beams}
 
 def predict_step(image_path):
     image = cv2.imread(image_path)  # Read image using OpenCV
@@ -21,16 +31,7 @@ def predict_step(image_path):
     right_image = Image.fromarray(right_region.astype('uint8'), 'RGB')
 
     # Load pre-trained model components
-    model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
-    feature_extractor = ViTImageProcessor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
-    tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
 
-    device = torch.device("cpu")
-    model.to(device)
-
-    max_length = 30
-    num_beams = 8
-    gen_kwargs = {"max_length": max_length, "num_beams": num_beams}
 
     # Detect obstacles using thresholding (replace with your preferred method)
     obstacles = []
@@ -38,7 +39,7 @@ def predict_step(image_path):
         gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
         thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)[1]
         obstacle_ratio = cv2.countNonZero(thresh) / (thresh.shape[0] * thresh.shape[1])
-        obstacle_threshold = 0.5  # Adjust threshold as needed
+        obstacle_threshold = 0.25  # Adjust threshold as needed
 
         if obstacle_ratio > obstacle_threshold:
             obstacles.append("obstacle")

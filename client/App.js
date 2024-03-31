@@ -85,10 +85,11 @@ function AuthenticatedBottomTabs() {
 export function App() {
   const user = useAuth();
   console.log(user);
+  console.log(user.isAuthenticated);
   return (
     <>
       <NavigationContainer>
-        {user.userDetails && user.userDetails._id ? <Tabs /> : <AuthenticatedBottomTabs />}
+        {!user.isAuthenticated ? <Tabs /> : <AuthenticatedBottomTabs />}
       </NavigationContainer>
     </>
   );

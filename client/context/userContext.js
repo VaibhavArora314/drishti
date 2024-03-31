@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [userDetails, setUserDetails] = useState(null);
   const [userToken, setUserToken] = useState(null);
   const [sosEmails, setSosEmails] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const userData = getData(UserDataKey);
@@ -26,29 +27,21 @@ export const AuthProvider = ({ children }) => {
 
     const emailsList = getData(SosEmailsKey);
     setSosEmails(emailsList);
+
+    if (userDetails && userDetails._id)
+      setIsAuthenticated(true);
   },[]);
 
   return (
     <AuthContext.Provider
       value={{
         userDetails,
-        setUserDetails: (data) => {
-          if (data) storeData(UserDataKey,data);
-          setUserDetails(data ? data : null);
-        },
+        setUserDetails,
         userToken,
-        setUserToken: (data) => {
-          if (data) storeData(TokenDataKey,data);
-          setUserToken(data ? data : null);
-        },
-        isAuthenticated: () => {
-          return (userDetails && userDetails._id) ? true : false;
-        },
+        setUserToken,
+        isAuthenticated,setIsAuthenticated,
         sosEmails,
-        setSosEmails: (data) => {
-          storeData(SosEmailsKey, data ? data : []);
-          setSosEmails(data ? data : []);
-        },
+        setSosEmails,
         logout: () => {
           storeData(UserDataKey,null);
           setUserDetails(null);
@@ -58,6 +51,8 @@ export const AuthProvider = ({ children }) => {
 
           storeData(SosEmailsKey,null);
           setSosEmails([]);
+
+          setIsAuthenticated(false);
         }
       }}
     >
